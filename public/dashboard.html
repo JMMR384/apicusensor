@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2><i class="fas fa-bee"></i> APICUSENSOR</h2>
+                <div class="profile">
+                    <img src="barry_bee_user.png" alt="Profile Picture">
+                </div>
+            </div>
+            <ul>
+                <li><a href="#" id="dashboard"><i class="fas fa-tachometer-alt"></i>   Dashboard</a></li>
+                <li><a href="#" id="add-hive"><i class="fas fa-plus-square"></i>  Agregar Colmena</a></li>
+                <li><a href="#" id="upload-data"><i class="fas fa-upload"></i>  Cargar Datos</a></li>
+                <li><a href="#" id="view-hives"><i class="fas fa-eye"></i>  Ver Colmenas</a></li>
+                <li><a href="#" id="view-metrics"><i class="fas fa-chart-line"></i>  Ver Métricas</a></li>
+                <li><a href="#" id="logout"><i class="fas fa-sign-out-alt"></i>   Cerrar Sesión</a></li>
+            </ul>
+        </div>
+        <div class="content" id="content">
+            <div class="topbar">
+                <span class="toggle-btn" id="toggle-btn">&#9776;</span>
+                <input type="text" placeholder="Buscar...">
+                <div class="topbar-icons">
+                    <span><i class="fas fa-envelope"></i> Mensaje</span>
+                    <span><i class="fas fa-bell"></i> Notificación</span>
+                    <img src="barry_bee_user.png" alt="Profile Picture">
+                </div>
+            </div>
+            <div class="content-section" id="dashboard-container">
+                <h2>Dashboard</h2><br>
+                <div class="card-container">
+                    <div class="card">
+                        <h3>Colmenas Activas</h3>
+                        <p>10</p>
+                    </div>
+                    <div class="card">
+                        <h3>Temperatura Promedio</h3>
+                        <p>30°C</p>
+                    </div>
+                    <div class="card">
+                        <h3>Humedad Promedio</h3>
+                        <p>60%</p>
+                    </div>
+                </div>
+                <div class="charts-container">
+                    <div class="chart">
+                        <h3>Temperatura por Colmena</h3>
+                        <canvas id="temperature-chart"></canvas>
+                    </div>
+                    <div class="chart">
+                        <h3>Humedad por Colmena</h3>
+                        <canvas id="humidity-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="content-section" id="add-hive-container">
+                <h2>Agregar Colmena</h2>
+                <form id="add-hive-form">
+                    <div class="form-group">
+                        <label for="hive-id">ID de Colmena:</label>
+                        <input type="text" id="hive-id" name="hive-id" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="location">Ubicación:</label>
+                        <input type="text" id="location" name="location" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="description">Descripción:</label>
+                        <textarea id="description" name="description" required></textarea>
+                    </div>
+                    <button type="submit">Agregar</button>
+                </form>
+            </div>
+            
+            <div class="content-section" id="upload-data-container" style="display: none;">
+                <h2>Cargar Datos</h2><br>
+                <form id="upload-data-form">
+                    <label for="hive-id-select">Seleccionar Colmena:</label>
+                    <select id="hive-id-select" name="hive-id-select" required>
+                        <!-- Opciones dinámicas de colmenas -->
+                    </select>
+                    <label for="data-file">Archivo de Datos:</label>
+                    <div class="file-input-container">
+                        <input type="file" id="data-file" name="data-file" accept=".txt" required>
+                    </div>
+                    <button type="submit" class="btn-submit">Cargar</button>
+                </form>
+            </div>
+            
+            <div class="content-section" id="view-hives-container" style="display: none;">
+                <h2>Ver Colmenas</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Ubicación</th>
+                            <th>Descripción</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="hives-table-body">
+                        <!-- Aquí se llenarán las colmenas dinámicamente -->
+                    </tbody>
+                </table>
+            </div>
+            <div class="content-section" id="view-metrics-container" style="display: none;">
+                <h2>Ver Métricas</h2>
+                <!-- Aquí se mostrarán métricas adicionales -->
+            </div>
+        </div>
+    </div>
+    <div id="connection-status">
+        <i class="fas fa-exclamation-triangle"></i> No hay conexión
+    </div>
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+    // Inicializar gráficos con Chart.js
+    const temperatureCtx = document.getElementById('temperature-chart').getContext('2d');
+    new Chart(temperatureCtx, {
+        type: 'line',
+        data: {
+            labels: ['Colmena 1', 'Colmena 2', 'Colmena 3', 'Colmena 4', 'Colmena 5'],
+            datasets: [{
+                label: 'Temperatura',
+                data: [30, 36, 29, 31, 30],
+                borderColor: 'rgba(54, 162, 245, 1)',
+                backgroundColor: 'rgba(54, 162, 245, 0.2)',
+                fill: false
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+
+    const humidityCtx = document.getElementById('humidity-chart').getContext('2d');
+    new Chart(humidityCtx, {
+        type: 'bar',
+        data: {
+            labels: ['Colmena 1', 'Colmena 2', 'Colmena 3', 'Colmena 4', 'Colmena 5'],
+            datasets: [{
+                label: 'Humedad',
+                data: [60, 62, 59, 61, 60],
+                backgroundColor: 'rgba(163, 142, 255, 0.2)',
+                borderColor: 'rgba(163, 142, 255, 1)',
+                borderWidth: 3
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+
+    // Mostrar/Ocultar secciones
+    const sections = ['dashboard-container', 'add-hive-container', 'upload-data-container', 'view-hives-container', 'view-metrics-container'];
+    document.querySelectorAll('.sidebar ul li a').forEach((link, index) => {
+        link.addEventListener('click', () => {
+            sections.forEach(section => document.getElementById(section).style.display = 'none');
+            document.getElementById(sections[index]).style.display = 'block';
+        });
+    });
+
+    // Lógica para agregar colmenas
+    document.getElementById('add-hive-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const hiveId = document.getElementById('hive-id').value;
+        const location = document.getElementById('location').value;
+        const description = document.getElementById('description').value;
+
+        // Aquí se agregaría la colmena a la base de datos
+
+        // Actualizar la tabla de colmenas
+        const tableBody = document.getElementById('hives-table-body');
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${hiveId}</td>
+            <td>${location}</td>
+            <td>${description}</td>
+            <td><button>Eliminar</button></td>
+        `;
+        tableBody.appendChild(row);
+
+        // Limpiar formulario
+        document.getElementById('add-hive-form').reset();
+    });
+
+    // Lógica para cargar datos
+    document.getElementById('upload-data-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const hiveId = document.getElementById('hive-id-select').value;
+        const dataFile = document.getElementById('data-file').files[0];
+
+        // Aquí se cargarían los datos a la base de datos
+        console.log(`Datos cargados para la colmena ${hiveId}: ${dataFile.name}`);
+
+        // Limpiar formulario
+        document.getElementById('upload-data-form').reset();
+    });
+
+    // Alternar la visibilidad de la barra lateral
+    document.getElementById('toggle-btn').addEventListener('click', function () {
+        document.querySelector('.sidebar').classList.toggle('hidden');
+        document.querySelector('.content').classList.toggle('expanded');
+    });
+});
+document.addEventListener('DOMContentLoaded', () => {
+            const connectionStatus = document.getElementById('connection-status');
+
+            function updateConnectionStatus() {
+                if (navigator.onLine) {
+                    connectionStatus.style.display = 'none';
+                } else {
+                    connectionStatus.style.display = 'block';
+                }
+            }
+
+            window.addEventListener('online', updateConnectionStatus);
+            window.addEventListener('offline', updateConnectionStatus);
+
+            // Comprueba el estado de la conexión al cargar la página
+            updateConnectionStatus();
+        });
+    </script>
+</body>
+</html>

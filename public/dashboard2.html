@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+    <title>Dashboard</title>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2>Dashboard</h2>
+            </div>
+            <div class="profile">
+                <img src="profile.png" alt="Profile">
+                <p>Usuario</p>
+            </div>
+            <ul>
+                <li><a href="#">Inicio</a></li>
+                <li><a href="#">Colmenas</a></li>
+                <li><a href="#">Temperatura</a></li>
+                <li><a href="#">Humedad</a></li>
+            </ul>
+        </div>
+        <div class="content" id="content">
+            <div class="topbar">
+                <span class="toggle-btn" id="toggle-btn">&#9776;</span>
+                <input type="text" placeholder="Buscar...">
+                <div class="topbar-icons">
+                    <span class="notification-icon">&#128276;</span>
+                    <img src="profile.png" alt="Profile">
+                </div>
+            </div>
+            <div class="content-section">
+                <h2>Bienvenido</h2>
+                <p>Contenido del dashboard...</p>
+            </div>
+        </div>
+    </div>
+    <script>
+        document.getElementById('toggle-btn').addEventListener('click', function () {
+            document.getElementById('sidebar').classList.toggle('hidden');
+            document.getElementById('content').classList.toggle('expanded');
+        });
+    </script>
+</body>
+</html>
