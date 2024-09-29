@@ -100,19 +100,29 @@
             
             <div class="content-section" id="view-hives-container" style="display: none;">
                 <h2>Ver Colmenas</h2>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Ubicación</th>
-                            <th>Descripción</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody id="hives-table-body">
-                        <!-- Aquí se llenarán las colmenas dinámicamente -->
-                    </tbody>
-                </table>
+                <div class="row">
+                    <!-- Repite este div por cada colmena -->
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <h4 class="card-title">Colmena ID: 1</h4>
+                                <p class="card-text">Ubicación: Ubicación X</p>
+                                <button type="submit" class="btn btn-primary" href="#">Seleccionar</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <h4 class="card-title">Colmena ID: 1</h4>
+                                <p class="card-text">Ubicación: Ubicación X</p>
+                                <button type="button" class="btn btn-primary" href="#">Seleccionar</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Repetir para cada colmena -->
+                </div>
+                
             </div>
             <div class="content-section" id="view-metrics-container" style="display: none;">
                 <h2>Ver Métricas</h2>
@@ -241,6 +251,14 @@ document.addEventListener('DOMContentLoaded', () => {
             // Comprueba el estado de la conexión al cargar la página
             updateConnectionStatus();
         });
+        document.querySelectorAll('.btn').forEach(button => {
+    button.addEventListener('click', function() {
+        const colmenaID = this.closest('.card').querySelector('.card-title').textContent.split('ID: ')[1];
+        console.log(`Colmena seleccionada: ${colmenaID}`);
+        // Aquí puedes redirigir a la vista o hacer una llamada al backend
+    });
+});
+
     </script>
 </body>
 </html>
