@@ -1,9 +1,8 @@
 // Importar servicios y modelos
 const dataUploadService = require('../services/dataUploadService');
-const predictionService = require('../services/predictionService');
+const predictionService = require('../services/predictionService');  // Servicio de predicción en Python o Node.js
 const Colmena = require('../models/Colmena');
 const Metrica = require('../models/Metrica');
-const ProduccionApicola = require('../models/ProduccionApicola');
 const Usuarios = require('../models/Usuario');
 const Sector = require('../models/Sector');
 
@@ -57,30 +56,24 @@ exports.getMetricas = async (req, res) => {
   }
 };
 
-// Controlador para obtener la producción apícola
-exports.getProduccionApicola = async (req, res) => {
-  try {
-    const produccion = await ProduccionApicola.findAll({
-      where: {
-        id_colmena: req.params.id_colmena
-      }
-    });
-    res.status(200).json({
-      data: produccion
-    });
-  } catch (error) {
-    res.status(500).json({
-      message: "Error al obtener la producción apícola.",
-      error: error.message
-    });
-  }
-};
-
 // Controlador para ejecutar predicciones de tendencia
 exports.getTendencias = async (req, res) => {
   try {
     const { id_colmena } = req.params;
-    const tendencias = await predictionService.getPredictions(id_colmena); // Ejecutar script de predicción
+
+    // Consulta las métricas para esa colmena como datos de entrada
+    const metricas = await Metrica.findAll({
+      where: {
+        id_colmena: id_colmena
+      }
+    });
+
+    if (!metricas.length) {
+      return res.status(404).json({ message: "No se encontraron métricas para la colmena especificada." });
+    }
+
+    // Enviar métricas para predecir tendencias
+    const tendencias = await predictionService.obtenerTendencia(metricas); // Llamar a la función de predicción
     res.status(200).json({
       data: tendencias
     });
